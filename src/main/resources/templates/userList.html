@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <h1>用户列表</h1>
+        
+        <div class="nav">
+            当前用户：<span th:text="${currentUser}" class="nav-item"></span>
+        </div>
+
+        <div th:if="${message}" class="message" th:text="${message}"></div>
+
+        <table th:if="${users != null and !users.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>年龄</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.age}"></td>
+                    <td>
+                        <button class="btn btn-danger" 
+                                th:data-id="${user.id}" 
+                                th:disabled="${user.name == currentUser}"
+                                onclick="deleteUser(this.getAttribute('data-id'))">删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/food/list" class="btn btn-primary">返回菜品列表</a>
+        </div>
+    </div>
+
+    <script>
+        function deleteUser(userId) {
+            if (!userId) {
+                alert('无效的用户ID');
+                return;
+            }
+            if (confirm('确定要删除这个用户吗？')) {
+                fetch('/user/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: parseInt(userId) })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        alert('删除成功！');
+                        location.reload();
+                    } else {
+                        alert('删除失败：' + (data.message || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    alert('操作失败：' + error.message);
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,209 @@
+/* 全局样式 */
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border-color: #409eff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(64, 158, 255, 0.2);
+}
+
+/* 按钮样式 */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #409eff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #66b1ff;
+}
+
+.btn-secondary {
+    background-color: #67c23a;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #85ce61;
+}
+
+.btn-danger {
+    background-color: #f56c6c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #f78989;
+}
+
+/* 表格样式 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ebeef5;
+}
+
+th {
+    background-color: #f5f7fa;
+    color: #606266;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #f5f7fa;
+}
+
+/* 链接样式 */
+a {
+    color: #409eff;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+a:hover {
+    color: #66b1ff;
+}
+
+/* 消息提示 */
+.message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background-color: #f0f9eb;
+    color: #67c23a;
+    border: 1px solid #c2e7b0;
+}
+
+.message.error {
+    background-color: #fef0f0;
+    color: #f56c6c;
+    border-color: #fbc4c4;
+}
+
+/* 导航栏 */
+.nav {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item {
+    margin-right: 15px;
+}
+
+/* 搜索框 */
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    flex: 1;
+}
+
+/* 购物车样式 */
+.cart {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    width: 300px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.cart-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ebeef5;
+}
+
+.cart-total {
+    margin-top: 15px;
+    text-align: right;
+    font-weight: bold;
+    color: #f56c6c;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .cart {
+        position: static;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+} 

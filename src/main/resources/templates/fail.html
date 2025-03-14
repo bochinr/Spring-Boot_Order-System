@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>提示信息</title>
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <h1>登录失败</h1>
+        
+        <div class="message error">
+            <div>提示：<span th:text="${info}"></span></div>
+            <div>用户：<span th:text="${name}"></span></div>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="/index.html" class="btn btn-primary">返回登录页面</a>
+        </div>
+    </div>
+</body>
+</html>
