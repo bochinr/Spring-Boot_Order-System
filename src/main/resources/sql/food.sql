@@ -1,6 +1,8 @@
+create database if not exists order_system;
+
 use order_system;
 
-CREATE TABLE food (
+CREATE TABLE IF NOT EXISTS food (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     info TEXT,
