@@ -3,10 +3,15 @@ package com.example.demo1.Controller;
 import com.example.demo1.Entity.user;
 import com.example.demo1.JwtUtil;
 import com.example.demo1.Mapper.userMapper;
+import com.example.demo1.auth.JwtTokenProvider;
+import com.example.demo1.security.JwtBlacklistService;
+import com.example.demo1.security.RequireVerification;
+import com.example.demo1.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +21,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
+/**
+ * 用户相关操作控制器
+ */
 @Controller
-@RequestMapping("/user")
-public class userController {
+@RequestMapping("/api/user")
+public class UserController {
+
     @Autowired
     private userMapper userMp;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private JwtBlacklistService jwtBlacklistService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/login")
     public String login(String name, String psw, Model model, HttpSession session, HttpServletResponse response) {
@@ -35,7 +53,7 @@ public class userController {
             model.addAttribute("name", name);
             return "fail";
         }
-        
+
         // 生成token并设置到Cookie中
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", name);
@@ -43,7 +61,7 @@ public class userController {
         Cookie cookie = new Cookie("token", token);
         cookie.setPath("/");
         response.addCookie(cookie);
-        
+
         session.setAttribute("currentUser", name);
         return "redirect:/food/list";
     }
@@ -79,7 +97,7 @@ public class userController {
             if (users == null || users.isEmpty()) {
                 model.addAttribute("message", "没有找到任何用户");
             }
-            
+
             // 添加数据到模型
             model.addAttribute("users", users);
             model.addAttribute("currentUser", currentUser);
@@ -153,4 +171,134 @@ public class userController {
         model.addAttribute("currentUser", currentUser);
         return "userDetail";
     }
-} 
+
+    /**
+     * 修改密码（需要二次验证）
+     * 
+     * @param request     HTTP请求
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return 修改结果
+     */
+    @RequireVerification("修改密码")
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody Map<String, String> request) {
+
+        try {
+            String oldPassword = request.get("oldPassword");
+            String newPassword = request.get("newPassword");
+
+            // 获取用户ID
+            String token = getTokenFromRequest(request);
+            if (token == null) {
+                return ResponseEntity.badRequest().body(createErrorResponse("未授权，请先登录"));
+            }
+
+            Integer userIdInt = jwtTokenProvider.getUserIdFromToken(token);
+            String userId = String.valueOf(userIdInt);
+
+            // 修改密码
+            boolean success = userService.changePassword(userId, oldPassword, newPassword);
+
+            if (success) {
+                // 密码修改成功，将当前token加入黑名单，强制用户重新登录
+                jwtBlacklistService.addToBlacklist(token);
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "密码修改成功，请重新登录");
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.badRequest().body(createErrorResponse("密码修改失败，旧密码不匹配"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse("密码修改失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 注销登录（将当前token加入黑名单）
+     * 
+     * @param request HTTP请求
+     * @return 注销结果
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
+        try {
+            String token = getTokenFromRequest(request);
+            if (token == null) {
+                return ResponseEntity.ok(createSuccessResponse("已注销登录"));
+            }
+
+            // 将token加入黑名单
+            jwtBlacklistService.addToBlacklist(token);
+
+            return ResponseEntity.ok(createSuccessResponse("已注销登录"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse("注销失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 获取用户信息
+     * 
+     * @param request HTTP请求
+     * @return 用户信息
+     */
+    @GetMapping("/info")
+    public ResponseEntity<?> getUserInfo(@RequestBody Map<String, String> request) {
+        try {
+            String token = getTokenFromRequest(request);
+            if (token == null) {
+                return ResponseEntity.badRequest().body(createErrorResponse("未授权，请先登录"));
+            }
+
+            Integer userIdInt = jwtTokenProvider.getUserIdFromToken(token);
+            String userId = String.valueOf(userIdInt);
+            user userInfo = userService.getUserById(userId);
+
+            if (userInfo == null) {
+                return ResponseEntity.badRequest().body(createErrorResponse("用户不存在"));
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", userInfo);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse("获取用户信息失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 从请求中提取JWT token
+     */
+    private String getTokenFromRequest(Map<String, String> request) {
+        String bearerToken = request.get("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * 创建成功响应
+     */
+    private Map<String, Object> createSuccessResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", message);
+        return response;
+    }
+
+    /**
+     * 创建错误响应
+     */
+    private Map<String, Object> createErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("message", message);
+        return response;
+    }
+}

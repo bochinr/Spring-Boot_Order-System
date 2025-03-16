@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>授权成功</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .success-container {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #67C23A;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 24px;
+        }
+
+        p {
+            margin: 0 0 15px;
+            color: #606266;
+        }
+
+        .count-down {
+            font-size: 18px;
+            font-weight: bold;
+            color: #409EFF;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h1>授权成功</h1>
+        <p>您已成功完成授权，窗口将在 <span id="seconds" class="count-down">3</span> 秒后自动关闭</p>
+        <p id="manual-close-tip">若未自动关闭，请手动关闭此窗口返回登录页</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查URL中是否有auto_close参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoClose = urlParams.get('auto_close');
+
+            if (autoClose === 'true') {
+                let secondsLeft = 3;
+                const secondsElement = document.getElementById('seconds');
+
+                // 倒计时关闭窗口
+                const countDown = setInterval(function () {
+                    secondsLeft--;
+                    secondsElement.textContent = secondsLeft;
+
+                    if (secondsLeft <= 0) {
+                        clearInterval(countDown);
+                        window.close();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('seconds').parentElement.style.display = 'none';
+                document.getElementById('manual-close-tip').textContent = '请关闭此窗口返回登录页';
+            }
+        });
+    </script>
+</body>
+
+</html>
