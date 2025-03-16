@@ -1,2 +1,2 @@
-# Spring-Boot_Order-System_User-Commodity
- 用户和商品服务模块的实现
+# Spring-Boot_Order-System
+ 基于Spring Boot + Mybatis框架的订餐系统实现
